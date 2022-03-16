@@ -2,4 +2,6 @@ Data/*.csv
 Data/*
 Data
 _pycache_/*
-_pycache_
+_pycache_/
+Output/
+.ipynb_checkpoints/

@@ -16,10 +16,18 @@ CREATE (c:Company {companyId: row})'''
 conn.query(query_string, db='neo4j')
 
 
-query_string='''LOAD CSV WITH HEADERS FROM 'file:///C:/Users/Rifat/Desktop/SDM_Property_Graph/Data/dblp_school.csv' AS row
-WITH row WHERE row.school IS NOT NULL
-CREATE (c:Company {companyId: row.school})'''
+query_string='''LOAD CSV with headers FROM 'file:///C:/Users/Rifat/Desktop/SDM_Property_Graph/Data/dblp_school.csv' AS row FIELDTERMINATOR ';'
+CREATE (:school {art_info:row[0]}) return row[0];'''
 
+query_string='''LOAD CSV with headers FROM 'file:///C:/Users/Rifat/Desktop/SDM_Property_Graph/Data/dblp_school.csv' AS row FIELDTERMINATOR ';'  return row limit 30; '''
+conn.query(query_string, db='neo4j')
+
+
+query_string='''LOAD CSV with headers FROM 'file:///C:/Users/Rifat/Desktop/SDM_Property_Graph/Data/dblp_school.csv' AS row FIELDTERMINATOR ';' with toInteger(row[0]) as ID, row[1] as school_name CREATE (:school {art_info:school_name }); '''
+
+
+
+conn.query(query_string, db='neo4j')
 
 
 
