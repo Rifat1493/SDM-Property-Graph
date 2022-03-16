@@ -6,12 +6,11 @@ Created on Sun Mar  6 16:12:21 2022
 """
 
 from neo4j import __version__ as neo4j_version
-print(neo4j_version)
-
-
 from neo4j import GraphDatabase
+
+
 class Neo4jConnection:
-    
+
     def __init__(self, uri, user, pwd):
         self.__uri = uri
         self.__user = user
@@ -39,3 +38,8 @@ class Neo4jConnection:
             if session is not None:
                 session.close()
         return response
+
+def connect():
+    print(neo4j_version)
+    print("connecting")
+    return Neo4jConnection(uri="bolt://localhost:7687", user="neo4j", pwd="password")

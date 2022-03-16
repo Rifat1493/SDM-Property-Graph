@@ -4,9 +4,7 @@ Created on Sun Mar  6 13:24:33 2022
 
 @author: Rifat
 """
-import connection
-
-conn = connection.Neo4jConnection(uri="bolt://localhost:7687", user="neo4j", pwd="1234")
+from connection import connect
 
 #conn.query("CREATE OR REPLACE DATABASE coradb")
 
