@@ -6,6 +6,7 @@ def main():
     print("Connected")
     update_graph(conn)
     print("DONE")
+    
 
 if __name__ == '__main__':
     main()

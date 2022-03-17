@@ -41,12 +41,12 @@ Updating the reviews and changing the porperties
 def add_properties(conn):
     print("Adding properties")
     query_suggest = """
-                    MATCH(a: author)-[r: reviewedby]-(ar:article)
+                    MATCH(a: authors)-[r: reviewedby]-(ar:articles)
                     SET r.suggest = rand() < 0.66
                     """
     conn.query(query_suggest, db='dblp')
     query_article = """
-                    MATCH(a: author)-[r: reviewedby]-(ar:article)
+                    MATCH(a: authors)-[r: reviewedby]-(ar:articles)
                     WITH ar, collect(r.suggest)
                     AS suggestions
                     WITH ar, size([x IN suggestions WHERE x = true]) AS rev, size(suggestions) as sizesug

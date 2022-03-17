@@ -42,4 +42,4 @@ class Neo4jConnection:
 def connect():
     print(neo4j_version)
     print("connecting")
-    return Neo4jConnection(uri="bolt://localhost:7687", user="neo4j", pwd="password")
+    return Neo4jConnection(uri="bolt://localhost:7687", user="neo4j", pwd="1234")
