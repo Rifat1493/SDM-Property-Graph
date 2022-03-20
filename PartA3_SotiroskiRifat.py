@@ -24,14 +24,14 @@ def load_affiliations(conn):
 
     query_string = ''' load CSV WITH HEADERS FROM 'file:///affiliation_company.csv' AS row FIELDTERMINATOR ',' 
                         match (a:authors),(c:company) 
-                        where (a.author_id)=toInteger(row.`:START_ID`) and (c.com_id)=row.`:END_ID` 
+                        where (a.author_id)=(row.`:START_ID`) and (c.com_id)=row.`:END_ID` 
                         create (a)-[:affiliated_withc]->(c)'''
     conn.query(query_string, db='dblp')
 
     query_string = ''' 
     load CSV WITH HEADERS FROM 'file:///affiliation_university.csv' AS row FIELDTERMINATOR ','
     match (a:authors),(u:university) 
-    where (a.author_id)=toInteger(row.`:START_ID`) and (u.uni_id)=row.`:END_ID`
+    where (a.author_id)=(row.`:START_ID`) and (u.uni_id)=row.`:END_ID`
     create (a)-[:affiliated_withu]->(u)
     '''
     conn.query(query_string, db='dblp')

@@ -5,6 +5,17 @@ Created on Tue Mar 15 19:19:13 2022
 @author: Rifat
 """
 
+def citation_query():
+    querry='''
+    match (arc:articles)<-[ct:cited_by]-(ar:articles)-[:published_inc]->(c:conferences)
+    with  c.conference as con,ar.title as til,count(arc) as num
+    order by con,num desc
+    with con,collect([til,num])[..3] as arti
+    return con,arti '''
+
+    return querry
+
+
 def communities_query(conn):
     querry = '''MATCH (au:authors)<-[w:writtenby]-(a:articles)-[r:published_inc]->(c:conferences)
                 WITH c.conference as conferences, au.author as authors, count(r.edition) as nb_pub
@@ -18,6 +29,14 @@ def communities_query(conn):
     # RETURN p
     # LIMIT 20
 
+
+def impact_factor_query(conn):
+    #not done with it
+    querry='''MATCH (pub_ar:articles)-[r:published_inj]->(j:journals) 
+    match ()-[ct:cited_by]->(pub_ar) 
+    with j.journal as cite_jor,pub_ar.year as year,count(j) as cite_num
+    order by cite_jor,year 
+    with collect([cite_jor,year,cite_num]) as cites'''
 
 def hindex_query(conn):
     querry = '''MATCH ()<-[c:cited_by]-(ar:articles)-[w:writtenby]->(a:authors)
@@ -46,3 +65,6 @@ def hindex_query(conn):
         #     return hindex
         # }
         # return hindex
+
+
+
