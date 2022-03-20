@@ -65,6 +65,21 @@ WITH c.conference as conf, a.article as art, a.pagerank as part
 ORDER BY conf, part  desc
 RETURN conf, collect(art)[0..3]
 
+// step 4
+// adding the istop100
+MATCH (a:articles)-[r:published_inc]->(c:conferences)
+WHERE a.community=6 AND c.community=a.community
+WITH c.conference as conf, a.article as art, a.pagerank as part
+ORDER BY conf, part  desc
+WITH conf, collect(art)[0..10] as list10
+UNWIND list10 as topArt
+MATCH (a2:articles {article: topArt})
+SET a2.isTop100 = true
 
-
+//adding the gurus
+	
+MATCH (a:articles {isTop100: true})-[r:writtenby]->(au:authors) 
+WITH au as auth, count(a) as nb
+WHERE nb>=2
+SET auth.isGuru=true
   
