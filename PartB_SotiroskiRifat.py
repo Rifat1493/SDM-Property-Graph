@@ -32,11 +32,21 @@ def communities_query(conn):
 
 def impact_factor_query(conn):
     #not done with it
-    querry='''MATCH (pub_ar:articles)-[r:published_inj]->(j:journals) 
-    match ()-[ct:cited_by]->(pub_ar) 
-    with j.journal as cite_jor,pub_ar.year as year,count(j) as cite_num
+    querry='''MATCH p=(pub_ar:articles)-[r:published_inj]->(j:journals) 
+
+    match p1= ()-[ct:cited_by]->(pub_ar) 
+    with j.journal as cite_jor,pub_ar.year as year,count(p) as cite_num
     order by cite_jor,year 
-    with collect([cite_jor,year,cite_num]) as cites'''
+    with collect([cite_jor,year,cite_num]) as list
+    unwind list as x
+    match (pub_ar:articles{year:x[1]-1})-[r:published_inj]->(j:journals{journal:x[0]})
+    with x[0] as name,x[1] as year,x[2] as cite_num,count(pub_ar) as pub_num1
+    with collect([name,year,cite_num,pub_num1]) as list
+    unwind list as x
+    match (pub_ar:articles{year:x[1]-2})-[r:published_inj]->(j:journals{journal:x[0]})
+     with x[0] as name,x[1] as year,(toFloat(x[2])/(x[3]+count(pub_ar))) as impact_factor
+    with name,avg(impact_factor) as impact_factor
+    return name,round(impact_factor, 2) as impact_factor'''
 
 def hindex_query(conn):
     querry = '''MATCH ()<-[c:cited_by]-(ar:articles)-[w:writtenby]->(a:authors)

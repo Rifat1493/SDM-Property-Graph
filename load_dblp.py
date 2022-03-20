@@ -39,14 +39,23 @@ return pub_jor,fpub_num,fcite_num
 
 '''
 
-#3rd main
+#3rd main impact factor
 '''
-MATCH (pub_ar:articles)-[r:published_inj]->(j:journals) 
+MATCH p=(pub_ar:articles)-[r:published_inj]->(j:journals) 
 
-match ()-[ct:cited_by]->(pub_ar) 
-with j.journal as cite_jor,pub_ar.year as year,count(j) as cite_num
+match p1= ()-[ct:cited_by]->(pub_ar) 
+with j.journal as cite_jor,pub_ar.year as year,count(p) as cite_num
 order by cite_jor,year 
-with collect([cite_jor,year,cite_num]) as cites
+with collect([cite_jor,year,cite_num]) as list
+unwind list as x
+match (pub_ar:articles{year:x[1]-1})-[r:published_inj]->(j:journals{journal:x[0]})
+with x[0] as name,x[1] as year,x[2] as cite_num,count(pub_ar) as pub_num1
+with collect([name,year,cite_num,pub_num1]) as list
+unwind list as x
+match (pub_ar:articles{year:x[1]-2})-[r:published_inj]->(j:journals{journal:x[0]})
+ with x[0] as name,x[1] as year,(toFloat(x[2])/(x[3]+count(pub_ar))) as impact_factor
+with name,avg(impact_factor) as impact_factor
+return name,round(impact_factor, 2) as impact_factor
 
 '''
 
@@ -93,6 +102,10 @@ ORDER BY index
 
 
 
+optional match (pub_ar1:articles{year:x[1]-2})-[r:published_inj]->(j:journals{journal:x[0]})
+with x[0] as name,x[1] as year,x[2] as cite_num,count(pub_ar) as pub_num1,count(pub_ar1) as pub_num2
+
+
 
 
 
@@ -101,10 +114,6 @@ ORDER BY index
 
 conn.query(query_string, db='dblp')
 
-
-
-
-match (arc:articles)<-[ct:cited_by]-(ar:articles)-[:published_inc]->(c:conferences) return c.conference,ar.title,count(arc)
-
-
+# neo4j admin command
+neo4j-admin import --database=dblp --nodes=journals=import/journal.csv --nodes=conferences=import/conference.csv --nodes=authors=import/authors.csv --nodes=articles=import/articles.csv --nodes=keywords=import/keywords.csv --relationships=writtenby=import/author_writes_article.csv --relationships=reviewedby=import/article_reviewedby_author.csv --relationships=published_inj=import/article_publishedin_journal.csv --relationships=published_inc=import/article_publishedin_conference.csv --relationships=contains=import/article_keywords.csv --relationships=cited_by=import/article_cites.csv --skip-duplicate-nodes=true --force
  
