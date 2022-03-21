@@ -7,11 +7,12 @@ Created on Tue Mar 15 19:19:13 2022
 
 def citation_query(conn):
     querry='''
-    match (arc:articles)<-[ct:cited_by]-(ar:articles)-[:published_inc]->(c:conferences)
-    with  c.conference as con,ar.title as til,count(arc) as num
+    match (ar:articles)-[:published_inc]->(c:conferences)
+    match ()-[ct:cited_by]->(ar:articles)
+    with  c.conference as con,ar.title as til,count(ar) as num
     order by con,num desc
     with con,collect([til,num])[..3] as arti
-    return con,arti '''
+    return con,arti  '''
     conn.query(querry, db='dblp')
     
 
