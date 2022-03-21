@@ -5,15 +5,15 @@ Created on Tue Mar 15 19:19:13 2022
 @author: Rifat
 """
 
-def citation_query():
+def citation_query(conn):
     querry='''
     match (arc:articles)<-[ct:cited_by]-(ar:articles)-[:published_inc]->(c:conferences)
     with  c.conference as con,ar.title as til,count(arc) as num
     order by con,num desc
     with con,collect([til,num])[..3] as arti
     return con,arti '''
-
-    return querry
+    conn.query(querry, db='dblp')
+    
 
 
 def communities_query(conn):
@@ -22,6 +22,7 @@ def communities_query(conn):
                 WHERE nb_pub >= 4
                 RETURN conferences, collect(authors) as community
                 LIMIT 25'''
+    conn.query(querry, db='dblp')
     # // for each conference, the authors who published in more than 4 editions
 
     # show example:
@@ -47,7 +48,8 @@ def impact_factor_query(conn):
      with x[0] as name,x[1] as year,(toFloat(x[2])/(x[3]+count(pub_ar))) as impact_factor
     with name,avg(impact_factor) as impact_factor
     return name,round(impact_factor, 2) as impact_factor'''
-
+    conn.query(querry, db='dblp')
+    
 def hindex_query(conn):
     querry = '''MATCH ()<-[c:cited_by]-(ar:articles)-[w:writtenby]->(a:authors)
                 WITH a as authors, ar.title as titles, count(*) as nb
@@ -63,7 +65,7 @@ def hindex_query(conn):
                 return authors, citations, hindex
                 ORDER BY hindex desc
                 LIMIT 25'''
-
+    conn.query(querry, db='dblp')
     # for running examples
 
         # WITH [3,0,6,1,5] as citations

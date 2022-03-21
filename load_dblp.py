@@ -106,14 +106,42 @@ optional match (pub_ar1:articles{year:x[1]-2})-[r:published_inj]->(j:journals{jo
 with x[0] as name,x[1] as year,x[2] as cite_num,count(pub_ar) as pub_num1,count(pub_ar1) as pub_num2
 
 
-
-
-
-
-
-
 conn.query(query_string, db='dblp')
 
 # neo4j admin command
 neo4j-admin import --database=dblp --nodes=journals=import/journal.csv --nodes=conferences=import/conference.csv --nodes=authors=import/authors.csv --nodes=articles=import/articles.csv --nodes=keywords=import/keywords.csv --relationships=writtenby=import/author_writes_article.csv --relationships=reviewedby=import/article_reviewedby_author.csv --relationships=published_inj=import/article_publishedin_journal.csv --relationships=published_inc=import/article_publishedin_conference.csv --relationships=contains=import/article_keywords.csv --relationships=cited_by=import/article_cites.csv --skip-duplicate-nodes=true --force
  
+
+
+
+
+
+
+
+#step 3 for recommendation
+
+CALL gds.graph.create(
+  'page_rank',
+  MATCH (a:articles {community: 6})-[r:published_inc]->(c:conferences {community: 6}) RETURN id(a) as id , id(c)
+  'LINKS',
+  {
+    relationshipProperties: 'weight'
+  }
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -21,8 +21,7 @@ def louvain(conn):
     RETURN
     communityId, count(article)'''
     
-    return querry
-
+    conn.query(querry, db='dblp')
 
 def shortest_path(conn):
     querry1='''CALL gds.graph.create(
@@ -56,7 +55,7 @@ def shortest_path(conn):
         nodes(path) as path
     ORDER BY index
     '''
-    return conn.query(querry2, db='dblp')
+   conn.query(querry2, db='dblp')
     
 
 
