@@ -1,39 +1,30 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 15 19:19:13 2022
-
-@author: Rifat
-"""
 
 from connection import connect
 
 """
 Adding the affiliations
 """
-
-
 def load_affiliations(conn):
     print("Load affiliations")
-    query_string = '''load CSV WITH HEADERS FROM 'file:///university.csv' AS row FIELDTERMINATOR ','
-                        CREATE (n:university {uni_id:row.`uni:ID`,name:row.`name:string[]`}) return n'''
+    query_string = '''LOAD CSV WITH HEADERS FROM 'file:///university.csv' AS row FIELDTERMINATOR ','
+                        CREATE (n:university {uni_id:row.`uni:ID`,name:row.`name:string[]`}) RETURN n'''
     conn.query(query_string, db='dblp')
 
-    query_string = ''' load CSV WITH HEADERS FROM 'file:///company.csv' AS row FIELDTERMINATOR ',' 
-                         CREATE (n:company {com_id:row.`com:ID`,name:row.`name:string[]`}) return n'''
+    query_string = ''' LOAD CSV WITH HEADERS FROM 'file:///company.csv' AS row FIELDTERMINATOR ',' 
+                         CREATE (n:company {com_id:row.`com:ID`,name:row.`name:string[]`}) RETURN n'''
     conn.query(query_string, db='dblp')
 
-    query_string = ''' load CSV WITH HEADERS FROM 'file:///affiliation_company.csv' AS row FIELDTERMINATOR ',' 
-                        match (a:authors),(c:company) 
-                        where (a.author_id)=(row.`:START_ID`) and (c.com_id)=row.`:END_ID` 
-                        create (a)-[:affiliated_withc]->(c)'''
+    query_string = ''' LOAD CSV WITH HEADERS FROM 'file:///affiliation_company.csv' AS row FIELDTERMINATOR ',' 
+                        MATCH (a:authors),(c:company) 
+                        WHERE (a.author_id)=(row.`:START_ID`) and (c.com_id)=row.`:END_ID` 
+                        CREATE (a)-[:affiliated_withc]->(c)'''
     conn.query(query_string, db='dblp')
 
-    query_string = ''' 
-    load CSV WITH HEADERS FROM 'file:///affiliation_university.csv' AS row FIELDTERMINATOR ','
-    match (a:authors),(u:university) 
-    where (a.author_id)=(row.`:START_ID`) and (u.uni_id)=row.`:END_ID`
-    create (a)-[:affiliated_withu]->(u)
-    '''
+    query_string = ''' LOAD CSV WITH HEADERS FROM 'file:///affiliation_university.csv' AS row FIELDTERMINATOR ','
+                        MATCH (a:authors),(u:university) 
+                        WHERE (a.author_id)=(row.`:START_ID`) and (u.uni_id)=row.`:END_ID`
+                        CREATE (a)-[:affiliated_withu]->(u)'''
     conn.query(query_string, db='dblp')
 
 

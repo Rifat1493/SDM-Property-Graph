@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Mar  6 16:12:21 2022
-
-@author: Rifat
-"""
-
 from neo4j import __version__ as neo4j_version
 from neo4j import GraphDatabase
 

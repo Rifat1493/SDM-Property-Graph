@@ -1,29 +1,30 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 15 19:19:13 2022
-
-@author: Rifat
-"""
+from connection import connect
 
 def citation_query(conn):
-    querry='''
-    match (ar:articles)-[:published_inc]->(c:conferences)
-    match ()-[ct:cited_by]->(ar:articles)
-    with  c.conference as con,ar.title as til,count(ar) as num
-    order by con,num desc
-    with con,collect([til,num])[..3] as arti
-    return con,arti  '''
-    conn.query(querry, db='dblp')
+    print("Citation query")
+    query = '''
+            MATCH (ar:articles)-[:published_inc]->(c:conferences)
+            MATCH ()-[ct:cited_by]->(ar:articles)
+            WITH  c.conference as con,ar.title as til,count(ar) as num
+            ORDER BY con,num desc
+            WITH con,collect([til,num])[..3] as arti
+            RETURN con,arti  
+            '''
+
+    conn.query(query, db='dblp')
     
 
 
 def communities_query(conn):
-    querry = '''MATCH (au:authors)<-[w:writtenby]-(a:articles)-[r:published_inc]->(c:conferences)
-                WITH c.conference as conferences, au.author as authors, count(r.edition) as nb_pub
-                WHERE nb_pub >= 4
-                RETURN conferences, collect(authors) as community
-                LIMIT 25'''
-    conn.query(querry, db='dblp')
+    print("Communities query")
+    query = '''
+            MATCH (au:authors)<-[w:writtenby]-(a:articles)-[r:published_inc]->(c:conferences)
+            WITH c.conference as conferences, au.author as authors, count(r.edition) as nb_pub
+            WHERE nb_pub >= 4
+            RETURN conferences, collect(authors) as community
+            LIMIT 25
+            '''
+    conn.query(query, db='dblp')
     # // for each conference, the authors who published in more than 4 editions
 
     # show example:
@@ -33,26 +34,28 @@ def communities_query(conn):
 
 
 def impact_factor_query(conn):
-    #not done with it
-    querry='''MATCH p=(pub_ar:articles)-[r:published_inj]->(j:journals) 
-
-    match p1= ()-[ct:cited_by]->(pub_ar) 
-    with j.journal as cite_jor,pub_ar.year as year,count(p) as cite_num
-    order by cite_jor,year 
-    with collect([cite_jor,year,cite_num]) as list
-    unwind list as x
-    match (pub_ar:articles{year:x[1]-1})-[r:published_inj]->(j:journals{journal:x[0]})
-    with x[0] as name,x[1] as year,x[2] as cite_num,count(pub_ar) as pub_num1
-    with collect([name,year,cite_num,pub_num1]) as list
-    unwind list as x
-    match (pub_ar:articles{year:x[1]-2})-[r:published_inj]->(j:journals{journal:x[0]})
-     with x[0] as name,x[1] as year,(toFloat(x[2])/(x[3]+count(pub_ar))) as impact_factor
-    with name,avg(impact_factor) as impact_factor
-    return name,round(impact_factor, 2) as impact_factor'''
-    conn.query(querry, db='dblp')
+    print("Impact factor")
+    query = '''
+            MATCH p=(pub_ar:articles)-[r:published_inj]->(j:journals) 
+            MATCH p1= ()-[ct:cited_by]->(pub_ar) 
+            WITH j.journal as cite_jor,pub_ar.year as year,count(p) as cite_num
+            ORDER BY cite_jor,year 
+            WITH collect([cite_jor,year,cite_num]) as list
+            UNWIND list as x
+            MATCH (pub_ar:articles{year:x[1]-1})-[r:published_inj]->(j:journals{journal:x[0]})
+            WITH x[0] as name,x[1] as year,x[2] as cite_num,count(pub_ar) as pub_num1
+            WITH collect([name,year,cite_num,pub_num1]) as list
+            UNWIND list as x
+            MATCH (pub_ar:articles{year:x[1]-2})-[r:published_inj]->(j:journals{journal:x[0]})
+            WITH x[0] as name,x[1] as year,(toFloat(x[2])/(x[3]+count(pub_ar))) as impact_factor
+            WITH name,avg(impact_factor) as impact_factor
+            RETURN name,round(impact_factor, 2) as impact_factor
+            '''
+    conn.query(query, db='dblp')
     
 def hindex_query(conn):
-    querry = '''MATCH ()<-[c:cited_by]-(ar:articles)-[w:writtenby]->(a:authors)
+    print("H-index")
+    query = ''' MATCH ()<-[c:cited_by]-(ar:articles)-[w:writtenby]->(a:authors)
                 WITH a as authors, ar.title as titles, count(*) as nb
                 order by nb desc
                 WITH authors, collect(nb) as citations
@@ -66,9 +69,8 @@ def hindex_query(conn):
                 return authors, citations, hindex
                 ORDER BY hindex desc
                 LIMIT 25'''
-    conn.query(querry, db='dblp')
+    conn.query(query, db='dblp')
     # for running examples
-
         # WITH [3,0,6,1,5] as citations
         # CALL {
         #     with citations
@@ -81,3 +83,8 @@ def hindex_query(conn):
 
 
 
+def run_all_queries(conn):
+    citation_query(conn)
+    communities_query(conn)
+    impact_factor_query(conn)
+    hindex_query(conn)
